@@ -4,13 +4,17 @@
     <title><![CDATA[test]]></title>
     <url>%2F2019%2F07%2F12%2Ftest2%2F</url>
     <content type="text"><![CDATA[Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub. Quick StartCreate a new post1$ hexo new "My New Post" More info: Writing Run server1$ hexo server More info: Server Generate static files1$ hexo generate More info: Generating Deploy to remote sites1$ hexo deploy More info: Deployment]]></content>
+      <categories>
+        <category>Diary - mimaxue</category>
+      </categories>
       <tags>
+        <tag>Diary</tag>
         <tag>c++</tag>
       </tags>
   </entry>
   <entry>
     <title><![CDATA[Hello World]]></title>
     <url>%2F2019%2F07%2F12%2Ftest1%2F</url>
-    <content type="text"><![CDATA[Create a new post1$ hexo new "My New Post"]]></content>
+    <content type="text"><![CDATA[Create a new post 1$ hexo new "My New Post" shdjhskld slhdjkahsk sjhjkahflkjfl sljdhajklshdklahsd siujgdkhajgshdkjgahksjdgas skjghdkahjsgkdjghaskjdhkajsd shjfgahjkshdlashdljkahsldhalsd higfyuidfjkashdjklasd ueighjksdghasgjahsgdklajdfg;kla sduiyUIDRFGHJKEGRK SDGAKSDGAHKJFGJKADHF]]></content>
   </entry>
 </search>
