@@ -1,30 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title><![CDATA[XSS跨站脚本攻击]]></title>
-    <url>%2F2019%2F07%2F12%2FXSS%E8%B7%A8%E7%AB%99%E8%84%9A%E6%9C%AC%E6%94%BB%E5%87%BB%2F</url>
-    <content type="text"><![CDATA[Test 1：没有过滤，网页源码为 所以payload为: 1&lt;script&gt;alert(123)&lt;/script&gt; Test 2:网页源代码为： 发现红框框起来的部分，需要闭合之前的尖括号和双引号，才能引起弹窗，达成跨站脚本攻击。 所以 payload为： 1&quot;&gt;&lt;script&gt;alert(123)&lt;/script&gt; Test 3：网页源代码： 网页源码中，红框部分为主要部分，用了htmlspecialchars()函数。该函数的作用是将&lt; &gt; / “ “ ‘ ‘这些符号进行转义，并且2处都进行了转义，所以我们使用html事件属性。 我们使用鼠标事件来引起xss弹窗。但是我们首先要闭合之前的单引号。 所以payload为： 1&apos; onmouseover=&apos;alert(2333)，这是我们把鼠标移到搜索框附近就会引起弹窗，攻击成功 Test 4：与上一关不同的是，出现的第一处发生了htmlspecialchars()转义，第二处过滤了&lt;和&gt;两个符号（替换成空），并将value=后面的单引号换成了双引号。这样我们直接将上题Payload 中单引号换成双引号，最后鼠标滑过触发XSS 。 所以payload为： 1”nmouseover=”lert(2333) Test 5：查看网页源代码发现on中间插入下划线_ ，并且发现script也被过滤，所以我们用html链接形式触发xss。首先我们闭合双引号，其次闭合尖括号；然后我们用链接触发xss。 所以payload为： 1&quot;&gt;&lt;a href=&quot;javascript:alert(123)&quot;&gt; 然后点击。便可触发 Test 6：首先我们用上次的payload尝试，发现不可行。查看网页源代码，发现有很多关键词都加入了下划线_ 进行了屏蔽，但是查看网页源码，发现我们之前填写的payload并没有被大小写统一，所以我们可以用大小写混用绕过屏蔽。 所以payload为： 1&quot;&gt;&lt;a hRef=&quot;javascript:alert(123)&quot;&gt; 并点击，便能触发xss Test 7：用之前的payload，发现并不能，然后查看网页源码。发现许多关键字被屏蔽了，并且被替换成空。我们可使用双写绕过，使得替换后的结果是我们所期望的。首先闭合双引号和尖括号，其次双写绕过。 所以payload： 1&quot;&gt;&lt;a hrhrefef=&quot;javascrscriptipt:alert(123)&quot;&gt; 然后点击，触发弹窗 Test 8：算了，不尝试之前的payload了，反正就没对过，直接看网页源码吧。 发现几乎所有关键字都被加了下划线_ 都被屏蔽，我们可以使用Unicode编码绕过。 Payload： 1javascrip&amp;#116;:alert(123) 然后点击友情链接，便可以触发xss弹窗。 Test 9：尝试之前的payload，发现404了，并为触发弹窗，攻击失败。查看源码，发现多了一个if判断语句。判断内容是是否含有http://，如果没有，就会显示连接不合法之类的。我们可以使用注释绕过 所以payload为： 1javascrip&amp;#116;:alert(123)/*http://*/ Test 10：查看网页源码，发现有许多hidden隐藏项，我们可以利用sort函数，并且利用html事件触发来触发xss。 所以 payload为： 1&amp;t_sort=&quot; onmouseover=&quot;alert(123)&quot; type=&quot;text]]></content>
-      <categories>
-        <category>网络攻防 - XSS</category>
-      </categories>
-      <tags>
-        <tag>XSS</tag>
-        <tag>网络攻防</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title><![CDATA[XSS跨站脚本攻击]]></title>
-    <url>%2F2019%2F07%2F12%2Ftest1%2F</url>
-    <content type="text"><![CDATA[Test 1：没有过滤，网页源码为 所以payload为: 1&lt;script&gt;alert(123)&lt;/script&gt; Test 2:网页源代码为： 发现红框框起来的部分，需要闭合之前的尖括号和双引号，才能引起弹窗，达成跨站脚本攻击。 所以 payload为： 1&quot;&gt;&lt;script&gt;alert(123)&lt;/script&gt; Test 3：网页源代码： 网页源码中，红框部分为主要部分，用了htmlspecialchars()函数。该函数的作用是将&lt; &gt; / “ “ ‘ ‘这些符号进行转义，并且2处都进行了转义，所以我们使用html事件属性。 我们使用鼠标事件来引起xss弹窗。但是我们首先要闭合之前的单引号。 所以payload为： 1&apos; onmouseover=&apos;alert(2333)，这是我们把鼠标移到搜索框附近就会引起弹窗，攻击成功 ) Test 4：与上一关不同的是，出现的第一处发生了htmlspecialchars()转义，第二处过滤了&lt;和&gt;两个符号（替换成空），并将value=后面的单引号换成了双引号。这样我们直接将上题Payload 中单引号换成双引号，最后鼠标滑过触发XSS 。 所以payload为： 1”nmouseover=”lert(2333) Test 5：查看网页源代码发现on中间插入下划线_ ，并且发现script也被过滤，所以我们用html链接形式触发xss。首先我们闭合双引号，其次闭合尖括号；然后我们用链接触发xss。 所以payload为： 1&quot;&gt;&lt;a href=&quot;javascript:alert(123)&quot;&gt; 然后点击。便可触发 Test 6：首先我们用上次的payload尝试，发现不可行。查看网页源代码，发现有很多关键词都加入了下划线_ 进行了屏蔽，但是查看网页源码，发现我们之前填写的payload并没有被大小写统一，所以我们可以用大小写混用绕过屏蔽。 所以payload为： 1&quot;&gt;&lt;a hRef=&quot;javascript:alert(123)&quot;&gt; 并点击，便能触发xss Test 7：用之前的payload，发现并不能，然后查看网页源码。发现许多关键字被屏蔽了，并且被替换成空。我们可使用双写绕过，使得替换后的结果是我们所期望的。首先闭合双引号和尖括号，其次双写绕过。 ) 所以payload： 1&quot;&gt;&lt;a hrhrefef=&quot;javascrscriptipt:alert(123)&quot;&gt; 然后点击，触发弹窗 ) Test 8：算了，不尝试之前的payload了，反正就没对过，直接看网页源码吧。 ) 发现几乎所有关键字都被加了下划线_ 都被屏蔽，我们可以使用Unicode编码绕过。 Payload： 1javascrip&amp;#116;:alert(123) 然后点击友情链接，便可以触发xss弹窗。 Test 9：尝试之前的payload，发现404了，并为触发弹窗，攻击失败。查看源码，发现多了一个if判断语句。判断内容是是否含有http://，如果没有，就会显示连接不合法之类的。我们可以使用注释绕过 所以payload为： 1javascrip&amp;#116;:alert(123)/*http://*/ Test 10：查看网页源码，发现有许多hidden隐藏项，我们可以利用sort函数，并且利用html事件触发来触发xss。 所以 payload为： 1&amp;t_sort=&quot; onmouseover=&quot;alert(123)&quot; type=&quot;text]]></content>
-      <categories>
-        <category>网络攻防 - XSS</category>
-      </categories>
-      <tags>
-        <tag>XSS</tag>
-        <tag>网络攻防</tag>
-      </tags>
-  </entry>
-  <entry>
     <title><![CDATA[test]]></title>
     <url>%2F2019%2F07%2F12%2Ftest2%2F</url>
     <content type="text"><![CDATA[Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when using Hexo, you can find the answer in troubleshooting or you can ask me on GitHub. Quick StartCreate a new post1$ hexo new "My New Post" More info: Writing Run server1$ hexo server More info: Server Generate static files1$ hexo generate More info: Generating Deploy to remote sites1$ hexo deploy More info: Deployment]]></content>
@@ -34,6 +10,18 @@
       <tags>
         <tag>Diary</tag>
         <tag>c++</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title><![CDATA[XSS跨站脚本攻击]]></title>
+    <url>%2F2019%2F07%2F12%2FXSS%E8%B7%A8%E7%AB%99%E8%84%9A%E6%9C%AC%E6%94%BB%E5%87%BB%2F</url>
+    <content type="text"><![CDATA[Test 1：没有过滤，网页源码为 所以payload为: 1&lt;script&gt;alert(123)&lt;/script&gt; Test 2:网页源代码为： 发现红框框起来的部分，需要闭合之前的尖括号和双引号，才能引起弹窗，达成跨站脚本攻击。 所以 payload为： 1&quot;&gt;&lt;script&gt;alert(123)&lt;/script&gt; Test 3：网页源代码： 网页源码中，红框部分为主要部分，用了htmlspecialchars()函数。该函数的作用是将&lt; &gt; / “ “ ‘ ‘这些符号进行转义，并且2处都进行了转义，所以我们使用html事件属性。 我们使用鼠标事件来引起xss弹窗。但是我们首先要闭合之前的单引号。 所以payload为： 1&apos; onmouseover=&apos;alert(2333)，这是我们把鼠标移到搜索框附近就会引起弹窗，攻击成功 Test 4：与上一关不同的是，出现的第一处发生了htmlspecialchars()转义，第二处过滤了&lt;和&gt;两个符号（替换成空），并将value=后面的单引号换成了双引号。这样我们直接将上题Payload 中单引号换成双引号，最后鼠标滑过触发XSS 。 所以payload为： 1”nmouseover=”lert(2333) Test 5：查看网页源代码发现on中间插入下划线_ ，并且发现script也被过滤，所以我们用html链接形式触发xss。首先我们闭合双引号，其次闭合尖括号；然后我们用链接触发xss。 所以payload为： 1&quot;&gt;&lt;a href=&quot;javascript:alert(123)&quot;&gt; 然后点击。便可触发 Test 6：首先我们用上次的payload尝试，发现不可行。查看网页源代码，发现有很多关键词都加入了下划线_ 进行了屏蔽，但是查看网页源码，发现我们之前填写的payload并没有被大小写统一，所以我们可以用大小写混用绕过屏蔽。 所以payload为： 1&quot;&gt;&lt;a hRef=&quot;javascript:alert(123)&quot;&gt; 并点击，便能触发xss Test 7：用之前的payload，发现并不能，然后查看网页源码。发现许多关键字被屏蔽了，并且被替换成空。我们可使用双写绕过，使得替换后的结果是我们所期望的。首先闭合双引号和尖括号，其次双写绕过。 所以payload： 1&quot;&gt;&lt;a hrhrefef=&quot;javascrscriptipt:alert(123)&quot;&gt; 然后点击，触发弹窗 Test 8：算了，不尝试之前的payload了，反正就没对过，直接看网页源码吧。 发现几乎所有关键字都被加了下划线_ 都被屏蔽，我们可以使用Unicode编码绕过。 Payload： 1javascrip&amp;#116;:alert(123) 然后点击友情链接，便可以触发xss弹窗。 Test 9：尝试之前的payload，发现404了，并为触发弹窗，攻击失败。查看源码，发现多了一个if判断语句。判断内容是是否含有http://，如果没有，就会显示连接不合法之类的。我们可以使用注释绕过 所以payload为： 1javascrip&amp;#116;:alert(123)/*http://*/ Test 10：查看网页源码，发现有许多hidden隐藏项，我们可以利用sort函数，并且利用html事件触发来触发xss。 所以 payload为： 1&amp;t_sort=&quot; onmouseover=&quot;alert(123)&quot; type=&quot;text]]></content>
+      <categories>
+        <category>网络攻防 - XSS</category>
+      </categories>
+      <tags>
+        <tag>XSS</tag>
+        <tag>网络攻防</tag>
       </tags>
   </entry>
 </search>
