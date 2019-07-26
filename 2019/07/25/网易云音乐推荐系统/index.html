@@ -1,0 +1,1384 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+<link rel="stylesheet" href="/css/main.css?v=7.2.0">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.2.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.2.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.2.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.2.0" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '7.2.0',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":true},
+    back2top: {"enable":true,"sidebar":false,"scrollpercent":true},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <meta name="description" content="综述以网易云音乐推荐算法为例，我们设计了一款基于用户的音乐推荐算法。在获取大量用户信息的情况下，指定任意一位用户，我们可以找出与其相似度最高的用户，并且根据用户的喜好推荐出一个他可能喜欢的歌单。 本次课设大体可以分为两个模块，爬虫和推荐算法，下文将对这两个模块进行详细分析。 爬虫模块需要爬取的数据及爬取原因本次课程设计的目的是设计一个基于网易云音乐的歌单推荐系统，核心是一个基于特定用户的一个推荐算">
+<meta name="keywords" content="信息系统,Jcard算法,余弦相似度">
+<meta property="og:type" content="article">
+<meta property="og:title" content="网易云音乐推荐系统">
+<meta property="og:url" content="http://yoursite.com/2019/07/25/网易云音乐推荐系统/index.html">
+<meta property="og:site_name" content="SZzzT&#39;s Blog">
+<meta property="og:description" content="综述以网易云音乐推荐算法为例，我们设计了一款基于用户的音乐推荐算法。在获取大量用户信息的情况下，指定任意一位用户，我们可以找出与其相似度最高的用户，并且根据用户的喜好推荐出一个他可能喜欢的歌单。 本次课设大体可以分为两个模块，爬虫和推荐算法，下文将对这两个模块进行详细分析。 爬虫模块需要爬取的数据及爬取原因本次课程设计的目的是设计一个基于网易云音乐的歌单推荐系统，核心是一个基于特定用户的一个推荐算">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://yoursite.com/2019/07/25/网易云音乐推荐系统/tu1.png">
+<meta property="og:image" content="http://yoursite.com/2019/07/25/网易云音乐推荐系统/tu2.png">
+<meta property="og:image" content="http://yoursite.com/2019/07/25/网易云音乐推荐系统/tu3.png">
+<meta property="og:image" content="http://yoursite.com/2019/07/25/网易云音乐推荐系统/tu4.png">
+<meta property="og:image" content="http://yoursite.com/2019/07/25/网易云音乐推荐系统/tu5.png">
+<meta property="og:image" content="http://yoursite.com/2019/07/25/网易云音乐推荐系统/tu6.png">
+<meta property="og:image" content="http://yoursite.com/2019/07/25/网易云音乐推荐系统/tu7.png">
+<meta property="og:image" content="http://yoursite.com/2019/07/25/网易云音乐推荐系统/tu8.png">
+<meta property="og:image" content="http://yoursite.com/2019/07/25/网易云音乐推荐系统/tu9.png">
+<meta property="og:image" content="http://yoursite.com/2019/07/25/网易云音乐推荐系统/tu10.png">
+<meta property="og:updated_time" content="2019-07-26T08:12:43.050Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="网易云音乐推荐系统">
+<meta name="twitter:description" content="综述以网易云音乐推荐算法为例，我们设计了一款基于用户的音乐推荐算法。在获取大量用户信息的情况下，指定任意一位用户，我们可以找出与其相似度最高的用户，并且根据用户的喜好推荐出一个他可能喜欢的歌单。 本次课设大体可以分为两个模块，爬虫和推荐算法，下文将对这两个模块进行详细分析。 爬虫模块需要爬取的数据及爬取原因本次课程设计的目的是设计一个基于网易云音乐的歌单推荐系统，核心是一个基于特定用户的一个推荐算">
+<meta name="twitter:image" content="http://yoursite.com/2019/07/25/网易云音乐推荐系统/tu1.png">
+
+
+
+  <link rel="alternate" href="/atom.xml" title="SZzzT's Blog" type="application/atom+xml">
+
+
+
+  
+  
+  <link rel="canonical" href="http://yoursite.com/2019/07/25/网易云音乐推荐系统/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>网易云音乐推荐系统 | SZzzT's Blog</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">SZzzT's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">你错过的昨夜，曾有过，多么皎洁的月</p>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>历程</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-about">
+
+    
+    
+      
+    
+
+    
+
+    <a href="/about/" rel="section"><i class="menu-item-icon fa fa-fw fa-user"></i> <br>关于</a>
+
+  </li>
+
+      
+      
+        <li class="menu-item menu-item-search">
+          
+            <a href="javascript:;" class="popup-trigger">
+          
+            
+              <i class="menu-item-icon fa fa-search fa-fw"></i> <br>搜索</a>
+        </li>
+      
+    </ul>
+  
+
+  
+
+  
+    <div class="site-search">
+      
+  <div class="popup search-popup local-search-popup">
+  <div class="local-search-header clearfix">
+    <span class="search-icon">
+      <i class="fa fa-search"></i>
+    </span>
+    <span class="popup-btn-close">
+      <i class="fa fa-times-circle"></i>
+    </span>
+    <div class="local-search-input-wrapper">
+      <input autocomplete="off" placeholder="搜索..." spellcheck="false" type="text" id="local-search-input">
+    </div>
+  </div>
+  <div id="local-search-result"></div>
+</div>
+
+
+
+    </div>
+  
+</nav>
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/07/25/网易云音乐推荐系统/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="SZzzT">
+      <meta itemprop="description" content="熬夜会长尸斑">
+      <meta itemprop="image" content="/images/touxiang.jpeg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="SZzzT's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">网易云音乐推荐系统
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+
+          
+          
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+
+              
+                
+              
+
+              <time title="创建时间：2019-07-25 18:11:11" itemprop="dateCreated datePublished" datetime="2019-07-25T18:11:11+08:00">2019-07-25</time>
+            </span>
+          
+
+          
+            
+
+            
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                
+                  <span class="post-meta-item-text">更新于</span>
+                
+                <time title="修改时间：2019-07-26 16:12:43" itemprop="dateModified" datetime="2019-07-26T16:12:43+08:00">2019-07-26</time>
+              </span>
+            
+          
+
+          
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/信息系统安全/" itemprop="url" rel="index"><span itemprop="name">信息系统安全</span></a></span>
+
+                
+                
+                  ，
+                
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/信息系统安全/推荐系统/" itemprop="url" rel="index"><span itemprop="name">推荐系统</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          <br>
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="综述"><a href="#综述" class="headerlink" title="综述"></a>综述</h2><p>以网易云音乐推荐算法为例，我们设计了一款基于用户的音乐推荐算法。在获取大量用户信息的情况下，指定任意一位用户，我们可以找出与其相似度最高的用户，并且根据用户的喜好推荐出一个他可能喜欢的歌单。</p>
+<p>本次课设大体可以分为两个模块，爬虫和推荐算法，下文将对这两个模块进行详细分析。</p>
+<h2 id="爬虫模块"><a href="#爬虫模块" class="headerlink" title="爬虫模块"></a>爬虫模块</h2><h3 id="需要爬取的数据及爬取原因"><a href="#需要爬取的数据及爬取原因" class="headerlink" title="需要爬取的数据及爬取原因"></a>需要爬取的数据及爬取原因</h3><p>本次课程设计的目的是设计一个基于网易云音乐的歌单推荐系统，核心是一个基于特定用户的一个推荐算法，但是核心算法是基于用户的，以一个用户为中心，我们需要大量的样本去创造一个巨大的数据集，用数据集里的用户与这个中心用户进行对比，计算出相似度，数据集从何而来？我们无法获得网易云音乐的后台数据，所以需要使用爬虫技术去网易云音乐的网页上爬取关键信息。</p>
+<p>小组在权衡利弊以后决定爬取用户的历史歌单作为数据集的组成部分，因为历史歌单反映了用户最近听取的歌曲以及用户最近的喜好，还反映了用户听取历史歌曲的次数，可以直接显示出用户的喜好。本次爬取是基于网易云音乐动态页面的爬取，具体爬取过程如下。</p>
+<h3 id="动态网页爬取技术"><a href="#动态网页爬取技术" class="headerlink" title="动态网页爬取技术"></a>动态网页爬取技术</h3><p>经过对网易云音乐界面的分析，总结出爬取过程中需要了解到下面的几种技术</p>
+<h4 id="动态网页"><a href="#动态网页" class="headerlink" title="动态网页"></a>动态网页</h4><p>动态网页是一个对所有动态生成与动态更新的网页的统称。与传统的静态网页相反，它会因为变量的改变而产生不同的网页，动态网页往往把随着一些数据库操作。本次页面爬取不同于静态页面，</p>
+<h4 id="Ajax技术"><a href="#Ajax技术" class="headerlink" title="Ajax技术"></a>Ajax技术</h4><p>中文为异步的<code>JavaScript</code>和<code>xml</code>，AJAX应用可以仅向服务器发送并取回必须的数据，并在客户端采用JavaScript处理来自服务器的回应。因为在服务器和浏览器之间交换的数据大量减少，服务器回应更快了。同时，很多的处理工作可以在发出请求的客户端机器上完成，因此Web服务器的负荷也减少了</p>
+<h4 id="XHR"><a href="#XHR" class="headerlink" title="XHR"></a>XHR</h4><p><code>XMLHTTP</code>是<code>AJAX网页开发</code>技术的重要组成部分，<code>XMLHTTP</code>是一组<code>API函数集</code>，可被<code>JavaScript</code>、<code>VBScript</code>以及其它web浏览器内嵌的脚本语言调用，通过HTTP在浏览器和web服务器之间收发XML或其它数据</p>
+<h3 id="爬取步骤及细节"><a href="#爬取步骤及细节" class="headerlink" title="爬取步骤及细节"></a>爬取步骤及细节</h3><p>(1) 首先需要用户登录才可以获取到用户信息，所以第一步为用户登录；</p>
+<p>(2) 因为点击历史歌单的链接，本次刷新页面只是局部刷新，所以猜测到是使用了Ajax技术，所以需要进一步分析网页的Ajax请求信息；</p>
+<p>(3) 打开火狐浏览器的F12开发者工具，选中网络，筛选出所有的<code>JS</code>和<code>XHR</code>请求，在其发现了需要的<code>Record</code>信息；</p>
+<img src="/2019/07/25/网易云音乐推荐系统/tu1.png" title="图1">
+
+
+
+<p>(4)    进入请求中进行详细分析，得出Ajax请求的地址信息</p>
+<img src="/2019/07/25/网易云音乐推荐系统/tu2.png" title="图2">
+
+
+
+<p>(5)    得到传递的参数信息，传递了两个参数，<code>params</code>和<code>encSecKey</code></p>
+<img src="/2019/07/25/网易云音乐推荐系统/tu3.png" title="图3">
+
+
+
+<p>(6)    本次爬取需要相应的用户信息才可以做到爬取特定用户的信息，所以这里需要在爬取时在HTTP请求头中加入用户的Cookie信息，做到模仿用户登录来爬取特定信息，这里我们采取<code>burpsuite</code>抓取数据包的方式获得用户的Cookie数据</p>
+<img src="/2019/07/25/网易云音乐推荐系统/tu4.png" title="图4">
+
+
+
+<p>(7)    响应中有我们需要的详细歌单信息</p>
+<img src="/2019/07/25/网易云音乐推荐系统/tu5.png" title="图5">
+
+
+
+<p>(8)    总结：需要用户的Cookie信息模仿登录，<code>url</code>为Ajax的请求地址，需要在请求时POST相应的参数。</p>
+<h3 id="Python源码"><a href="#Python源码" class="headerlink" title="Python源码"></a>Python源码</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#coding:utf-8</span></span><br><span class="line"><span class="keyword">from</span> urllib <span class="keyword">import</span> request, parse</span><br><span class="line"><span class="keyword">import</span> json</span><br><span class="line">url = <span class="string">"https://music.163.com/weapi/v1/play/record?csrf_token=b55a89d5bac7994f60666202c2ecd1dd"</span></span><br><span class="line"></span><br><span class="line">head = &#123;</span><br><span class="line">     <span class="string">'User-Agent'</span>: <span class="string">'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/71.0.3578.98 Safari/537.36'</span>,</span><br><span class="line">     <span class="string">'Referer'</span>: <span class="string">'https://music.163.com/'</span>,</span><br><span class="line">     <span class="string">'Cookie'</span>:<span class="string">'_iuqxldmzr_=32; _ntes_nnid=bb407261'</span></span><br><span class="line">              <span class="string">'  7d2c7728aeb0d00825c89c77,1545055580618; _ntes_nuid=bb4072617d2c7728aeb0d00825c89c77; WM_TID=ekr3YxPzrtVFVRFEBEcpe4*%2F*xPuJlUWfm; __utma=94650624.1316911545.1545055581.1545055581.1545825111.2; __utmz=94650624.1545825111.2.2.utmcsr=kaizynx.github.io|utmccn=(referral)|utmcmd=referral|utmcct=/2018/09/01/Blog_build/; P_INFO=904367196@qq.com|1547475857|0|lofter|00&amp;99|null&amp;null&amp;null#not_found&amp;null#10#0|&amp;0||904367196@qq.com; mail_psc_fingerprint=7c6a02915081b795221df5f7b2459fdc; WM_NI=pVyGKwYGPrlfLuuRUTeMa1KIwOsABEm8s1ADJIjPpxT7cWfNNwekW6emVaaFml1LGnnDud1Uor8nMf9rxIj*%2F*SJFXQiOOHofUULZWM07jeGlWvkye5iFAvEaZYXH2hLFha1A%3D; WM_NIKE=9ca17ae2e6ffcda170e2e6eea4c87cf3adf8b5e87f88ef8bb3c84a929b9b85b773abb286abce4981969bacdc2af0fea7c3b92ab48ab7a8ca7d9b99a093ef6e90abbbb3d860a793afd2ca43b591bda2c14fafe8bdd2c4508a97a6b1f37498e9adb8e5468ea9ab8cd63ea7b39a82e44eafb4ffadc666ae9cbb85b45fadaef88fd06efbaeb8aae92591968ab9d4638d918890e55f979496b8d03cf5b6aba8ef5db6b5b786b863869fbaa6e4529b8888d3eb4886b8afd2c437e2a3; __remember_me=true; JSESSIONID-WYYY=kloR*%2F*EKfYxX1S4*%2F*%2Bxw8%2BOCOS62GdKDh1AIwoeuGbEJESfjOKEEy1w8u9VcBbxBczUV9Fei6oQX3cTuRbRs%5CjENHa3U0Zv%2BuCXrZ3qh1mpPBtMyNK5mtbliz5ld65Yt%2BVtOZesfzV%2BCtJPJ%5Ci8rfdD7mcAVhBrTzdrVelvT8HXw7qJC6C%3A1560904504726; MUSIC_U=d52d8fce725f1a1bbd576340f32176498461110d60248d031f2f561a7b06c09a424bd0eccd382f940222602dc7446ab47955a739ab43dce1; __csrf=e62c53be7a6fcf0e9204219e51725530'</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">data = &#123;</span><br><span class="line"><span class="string">'params'</span>:<span class="string">'gzwJSGe0IUsDHQSp+44wByyhj2vXeFSQ1HpoLMfI8NNCDRxid85h1S9ZZBycBkNB7iIFldTMtdDilKgjLzqz3CanHb+BBU5uZnaX1M9FbZXk6L+cW0jwjlu9a5TnnBSe+nwgNoJFgYHCy0nShiG+IL0D7tC06LeyuX4iHq7uzAWXZQObjyhbK6SWPHFPDKKxZ+6zF0ustifWIL6P0hz6/M/sfsQeu4JIXZalOJPZPbA='</span>,    <span class="string">'encSecKey'</span>:<span class="string">'cd9ba1eb7da640f09deb1290735c1a56632875e04889ce74dc024cc1123bdf0d47da2b0573a73a3a0797f9824d0930365745258c5eda2cdc9694b67cd144754d5bcf9c6d164136a643fdc81976b4bbb3f9929f1413762b9bf65599a3e88c1223c6fa6ee259d2643caa67e7005a10fb096193c45e9c9ab72fa00a8934f644c1f2'</span></span><br><span class="line">&#125;</span><br><span class="line">data = parse.urlencode(data).encode(<span class="string">'utf-8'</span>)</span><br><span class="line">request1 = request.Request(url, data, headers=head)</span><br><span class="line">response = request.urlopen(request1)</span><br><span class="line">html = response.read().decode(<span class="string">'utf-8'</span>)</span><br><span class="line">results = json.loads(html)</span><br><span class="line"><span class="keyword">with</span> open(<span class="string">'info11.json'</span>,<span class="string">'w'</span>) <span class="keyword">as</span> f:</span><br><span class="line">json.dump(results,f)</span><br></pre></td></tr></table></figure>
+
+<p>代码使用了python的<code>urllib</code>和<code>json</code>模块，用<code>urllib</code>模块发起请求，得到响应，使用<code>json模块</code>将爬取到的<code>json格式</code>的字符存储为<code>json文件</code>，用于下一步的数据处理和算法分析。</p>
+<h3 id="爬取结果展示"><a href="#爬取结果展示" class="headerlink" title="爬取结果展示"></a>爬取结果展示</h3><p>（1）生成大量<code>json</code>文件，部分截图如下：</p>
+<img src="/2019/07/25/网易云音乐推荐系统/tu6.png" title="图6">
+
+
+
+<p>（2）<code>Json</code>文件中存取每个不同用户的信息</p>
+<img src="/2019/07/25/网易云音乐推荐系统/tu7.png" title="图7">
+
+
+
+<h2 id="算法模块"><a href="#算法模块" class="headerlink" title="算法模块"></a>算法模块</h2><h3 id="算法说明"><a href="#算法说明" class="headerlink" title="算法说明"></a>算法说明</h3><p>算法的思想是基于用户的协同过滤算法，用一个词来概括可以说是物以类聚。我们分析了用户的历史数据，包括喜欢的歌曲，最近收听的歌曲，已下载的歌曲，放入歌单的歌曲等，对这些数据进行度量与打分。根据所有用户对于所有喜好歌曲的重复比例，以及相同歌曲的喜好程度，可以计算出用户之间的相似度。有相同喜好的用户之间可以进行推荐。简单来说，假定用户A喜欢歌曲a，b，用户B喜欢歌曲a，b，c，那么我们可以认为用户B喜欢的，用户A也应该喜欢。所以我们把歌曲c推荐给用户A。</p>
+<p>我们使用了两个算法来进行相似度的比较：使用jaccard系数比较两个用户歌曲的重复程度，将两个用户对重复歌曲分别的播放次数计算余弦相似度，来比较用户对歌曲的喜欢程度。</p>
+<h3 id="jaccard系数"><a href="#jaccard系数" class="headerlink" title="jaccard系数"></a>jaccard系数</h3><p><code>Jaccard系数</code>的公式为：</p>
+<img src="/2019/07/25/网易云音乐推荐系统/tu8.png" title="图8">
+
+<p>用自然语言描述为用户A和用户B的交集与A，B的并集之比。主要应用于查重功能。使用jaccard系数衡量用户喜欢歌曲的相似性根据用 户所有时间听歌排行评价用户相似性时，歌单里的每一首歌都是用户喜欢的歌，系数score代表用户喜欢的程度。用A 代表用户A喜欢的歌曲集合，用B 代表用户B 喜欢的歌曲集合，则jaccadr系数为：A和B共同喜好的歌除以A和B所有听过的歌。</p>
+<h3 id="余弦相似度"><a href="#余弦相似度" class="headerlink" title="余弦相似度"></a>余弦相似度</h3><p><code>余弦相似度</code>的公式为：</p>
+<img src="/2019/07/25/网易云音乐推荐系统/tu9.png" title="图9">
+
+
+
+<p>由简单的余弦定理演变而来，余弦相似度用向量空间中两个向量夹角的余弦值作为衡量两个个体间差异的大小。余弦值越接近1，就表明夹角越接近0度，也就是两个向量越相似。我们将之前<code>jaccard系数</code>算出的重复的歌进行比较，获取这些歌最近的播放次数，将播放次数作为向量的内容，来计算余弦相似度。余弦值越高，表明两个用户相似度越高。求出相似度最高的用户作为推荐的样本。</p>
+<h3 id="歌单筛选"><a href="#歌单筛选" class="headerlink" title="歌单筛选"></a>歌单筛选</h3><p>求出相似度最高的用户后如何进行推荐呢，我们爬取了该用户最近一周内所有播放的歌进行筛选，去除掉播放次数小于2的歌。我们认为播放次数小于2的歌并不代表该用户对这首歌感兴趣，也许仅仅是试听内容。将播放次数大于2的歌打包为歌单，推荐给用户，这就是实现的推荐算法。</p>
+<h2 id="代码分析与展示"><a href="#代码分析与展示" class="headerlink" title="代码分析与展示"></a>代码分析与展示</h2><p>首先，我们爬取到了4个用户的数据，但是爬取到的数据非常多，数据是格式化的json数据，里面有我们不需要的冗余数据。这时我们就需要对爬取数据进行筛选，选出我们需要的，剔除我们不需要的。数据包括用户全部数据<code>allDate</code>和本周的最新数据数据<code>weekDate</code>，所以我们也需要对爬取的数据进行分类。</p>
+<h3 id="数据处理"><a href="#数据处理" class="headerlink" title="数据处理"></a>数据处理</h3><p>我们自己编写了一个<code>handle()</code>函数，用来实现数据的预处理。handle函数有2个参数，一个是<code>info</code>，另一个是<code>mode</code>。<code>Info</code>是<code>json格式的数据</code>。标志量mode的true或者false表示当前读取的<code>allDate</code>还是<code>weekDate</code>。预处理后的数据存放在字典型变量<code>dic</code>中。字典中共有4个索引，分别是<code>singers</code>，<code>songs</code>，<code>scores</code>和<code>username</code>，分别对应用户的所听的歌曲的演唱者，歌曲名，歌曲播放评率与当前用户的用户名。然后遍历info文件，将对应数据放入字典对应组中。这样就完成了数据的预处理。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">handle</span><span class="params">(info,mode=True)</span>:</span></span><br><span class="line">    username = info[<span class="string">'username'</span>]</span><br><span class="line">    <span class="keyword">if</span> mode==<span class="literal">True</span>:</span><br><span class="line">        info = info[<span class="string">'allData'</span>]</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        info = info[<span class="string">'weekData'</span>]</span><br><span class="line">    dic = dict()</span><br><span class="line">    dic[<span class="string">"singers"</span>] = []</span><br><span class="line">    dic[<span class="string">"songs"</span>] = []</span><br><span class="line">    dic[<span class="string">"scores"</span>] = []</span><br><span class="line">    dic[<span class="string">'username'</span>] = username</span><br><span class="line">    <span class="keyword">for</span> item <span class="keyword">in</span> info:</span><br><span class="line">        dic[<span class="string">'songs'</span>].append(item[<span class="string">'song'</span>][<span class="string">'song'</span>][<span class="string">'name'</span>])</span><br><span class="line">        dic[<span class="string">'singers'</span>].append(item[<span class="string">'song'</span>][<span class="string">'song'</span>][<span class="string">'artist'</span>][<span class="string">'name'</span>])</span><br><span class="line">        dic[<span class="string">'scores'</span>].append(item[<span class="string">'playCount'</span>])</span><br><span class="line">    \<span class="comment"># print(dic)</span></span><br><span class="line">    <span class="keyword">return</span> dic</span><br></pre></td></tr></table></figure>
+
+<h3 id="求交集函数-repeatlist"><a href="#求交集函数-repeatlist" class="headerlink" title="求交集函数-repeatlist()"></a>求交集函数-repeatlist()</h3><p>因为我们使用<code>jaccard算法</code>和<code>余弦相似度算法</code>进行推荐，这两种方法都需要计算两个列表的交集。所以我们创建一个函数专门来计算交集：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">repeatlist</span><span class="params">(list1, list2)</span>:</span></span><br><span class="line">    relist = list()</span><br><span class="line">    <span class="keyword">for</span> each <span class="keyword">in</span> list1:</span><br><span class="line">        <span class="keyword">if</span> each <span class="keyword">in</span> list2:</span><br><span class="line">            relist.append(each)</span><br><span class="line">    <span class="keyword">return</span> relist</span><br></pre></td></tr></table></figure>
+
+<h3 id="相似度算法1-jaccard"><a href="#相似度算法1-jaccard" class="headerlink" title="相似度算法1-jaccard()"></a>相似度算法1-jaccard()</h3><p>这部分是<code>jaccard算法</code>计算相似度，因为相似歌手和相似歌曲的<code>jaccard系数</code>都对于两个用户的相似程度，所以我们分别计算其相似度并乘以该项的权值（0.5）作为评估两个用户相似度的标准。该函数有2个参数<code>user1</code>和<code>user2</code>，是2个用户的待评估项组成的列表。 </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">jaccard</span><span class="params">(user1,user2)</span>:</span></span><br><span class="line">    singers1 = user1[<span class="string">'singers'</span>]</span><br><span class="line">    singers2 = user2[<span class="string">'singers'</span>]</span><br><span class="line">    songs1 = user1[<span class="string">'songs'</span>]</span><br><span class="line">    songs2 = user2[<span class="string">'songs'</span>]</span><br><span class="line">    \<span class="comment"># 计算集合长度</span></span><br><span class="line">    count1 = len(singers1)</span><br><span class="line">    count2 = len(singers2)</span><br><span class="line">    \<span class="comment"># 计算交集</span></span><br><span class="line">    repeatsongs = len(repeatlist(songs1,songs2))</span><br><span class="line">    repeatsingers = len(repeatlist(singers1,singers2))</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> repeatsongs <span class="keyword">and</span> <span class="keyword">not</span> repeatsingers:</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span></span><br><span class="line">    \<span class="comment"># 分别计算jaccard值</span></span><br><span class="line">    jas1 = repeatsongs / (count2 + count1 - repeatsongs)</span><br><span class="line">    jas2 = repeatsingers / (count1 + count2 - repeatsingers)</span><br><span class="line">    <span class="keyword">return</span> (jas1 + jas2) / <span class="number">2</span> * <span class="number">100</span></span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="相似度算法2-cossimi"><a href="#相似度算法2-cossimi" class="headerlink" title="相似度算法2-cossimi()"></a>相似度算法2-cossimi()</h3><p>在该部分中，我们计算的是重复歌曲列表中余弦相似度。用以评估<code>jaccard系数</code>的准确程度，该函数有2个参数<code>user1</code>和<code>user2</code>，是2个用户的数据分别组成的字典为{‘singers’:,”songs”:,}。最后返回2个用户的余弦相似度。其中有一部分计算相似歌曲矩阵，我们使用<code>numpy模块</code>中的<code>array()函数</code>。将列表转化为矩阵。然后使用<code>inner()</code>方法计算所需要的数据。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">cossimi</span><span class="params">(user1, user2)</span>:</span></span><br><span class="line">    songs1 = user1[<span class="string">'songs'</span>]</span><br><span class="line">    songs2 = user2[<span class="string">'songs'</span>]</span><br><span class="line">    repeatsongs = repeatlist(songs1, songs2)</span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> repeatsongs:</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span></span><br><span class="line">    <span class="function"><span class="keyword">def</span> <span class="title">score</span><span class="params">(songs, user)</span>:</span></span><br><span class="line">        scores = list()</span><br><span class="line">        <span class="keyword">for</span> each <span class="keyword">in</span> repeatsongs:</span><br><span class="line">            index = songs.index(each)</span><br><span class="line">            scores.append(user[<span class="string">'scores'</span>][index])</span><br><span class="line">        <span class="keyword">return</span> scores</span><br><span class="line">    score1 = score(songs1, user1)</span><br><span class="line">    score2 = score(songs2, user2)</span><br><span class="line">    matrix1 = np.array(score1)</span><br><span class="line">    matrix2 = np.array(score2)</span><br><span class="line">    num = np.inner(matrix1, matrix2)</span><br><span class="line">    deno = np.sqrt(matrix1.dot(matrix1)) * np.sqrt(matrix2.dot(matrix2))</span><br><span class="line">    res = (num / deno) * <span class="number">100</span></span><br><span class="line">    <span class="keyword">return</span> res</span><br></pre></td></tr></table></figure>
+
+<h3 id="生成推荐结果"><a href="#生成推荐结果" class="headerlink" title="生成推荐结果"></a>生成推荐结果</h3><p>在得到每个用户的<code>jaccard系数</code>与<code>余弦相似度</code>之后，我们取该两项的乘积作为评估两个用户匹配程度的最终得分，然后对于我们的目标用户，在指定的用户群中（理论上越多越好，本实验中为4个用户），依次计算用户群的每个用户与目标用户的匹配得分，取用户群中最高得分的用户的一周内的播放次数大于2的歌曲推荐给目标用户，之所以不推荐播放次数小于2的歌曲，是因为这部分这些歌曲可能并非是用户喜欢的歌曲而仅仅是用户试听的歌曲而已。核心代码如下</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> item <span class="keyword">in</span> users:</span><br><span class="line">    jac = jaccard(item,u)</span><br><span class="line">    cos = cossimi(item,u)</span><br><span class="line">    print(<span class="string">"&#123;&#125;与&#123;&#125;的jaccard相似度为：&#123;:.2f&#125;%"</span>.format(user[<span class="string">'username'</span>],item[<span class="string">'username'</span>],jac))</span><br><span class="line">    print(<span class="string">"&#123;&#125;与&#123;&#125;的余弦相似度为：&#123;:.2f&#125;%"</span>.format(user[<span class="string">'username'</span>],item[<span class="string">'username'</span>],cos))</span><br><span class="line">    pts = jac * cos</span><br><span class="line">    <span class="keyword">if</span> pts &gt; max_num:</span><br><span class="line">        max_num = pts</span><br><span class="line">        index = users.index(item)</span><br><span class="line">         recommenduser = item[<span class="string">'username'</span>]</span><br><span class="line"></span><br><span class="line">recommend = users_weekdata[index]</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="完整代码展示"><a href="#完整代码展示" class="headerlink" title="完整代码展示"></a>完整代码展示</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> json</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">handle</span><span class="params">(info,mode=True)</span>:</span></span><br><span class="line">	username = info[<span class="string">'username'</span>]</span><br><span class="line">	<span class="keyword">if</span> mode==<span class="literal">True</span>:</span><br><span class="line">		info = info[<span class="string">'allData'</span>]</span><br><span class="line">	<span class="keyword">else</span>:</span><br><span class="line">		info = info[<span class="string">'weekData'</span>]</span><br><span class="line">	dic = dict()</span><br><span class="line">	dic[<span class="string">"singers"</span>] = []</span><br><span class="line">	dic[<span class="string">"songs"</span>] = []</span><br><span class="line">	dic[<span class="string">"scores"</span>] = []</span><br><span class="line">	dic[<span class="string">'username'</span>] = username</span><br><span class="line">	<span class="keyword">for</span> item <span class="keyword">in</span> info:</span><br><span class="line">		dic[<span class="string">'songs'</span>].append(item[<span class="string">'song'</span>][<span class="string">'song'</span>][<span class="string">'name'</span>])</span><br><span class="line">		dic[<span class="string">'singers'</span>].append(item[<span class="string">'song'</span>][<span class="string">'song'</span>][<span class="string">'artist'</span>][<span class="string">'name'</span>])</span><br><span class="line">		dic[<span class="string">'scores'</span>].append(item[<span class="string">'playCount'</span>])</span><br><span class="line">	<span class="comment"># print(dic)</span></span><br><span class="line">	<span class="keyword">return</span> dic</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 计算两个列表的重复元素</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">repeatlist</span><span class="params">(list1, list2)</span>:</span></span><br><span class="line">	relist = list()</span><br><span class="line">	<span class="keyword">for</span> each <span class="keyword">in</span> list1:</span><br><span class="line">		<span class="keyword">if</span> each <span class="keyword">in</span> list2:</span><br><span class="line">			relist.append(each)</span><br><span class="line">	<span class="keyword">return</span> relist</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 计算两个用户的jaccard相似度，由于歌手和歌曲均有影响，所以分别计算歌曲和歌手的余弦相似度取平均值</span></span><br><span class="line"><span class="comment"># user参数为字典，分别为&#123;'singers':,"songs":,&#125;</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">jaccard</span><span class="params">(user1,user2)</span>:</span></span><br><span class="line">	singers1 = user1[<span class="string">'singers'</span>]</span><br><span class="line">	singers2 = user2[<span class="string">'singers'</span>]</span><br><span class="line"></span><br><span class="line">	songs1 = user1[<span class="string">'songs'</span>]</span><br><span class="line">	songs2 = user2[<span class="string">'songs'</span>]</span><br><span class="line"></span><br><span class="line">	<span class="comment"># 计算集合长度</span></span><br><span class="line">	count1 = len(singers1)</span><br><span class="line">	count2 = len(singers2)</span><br><span class="line"></span><br><span class="line">	<span class="comment"># 计算交集</span></span><br><span class="line">	repeatsongs = len(repeatlist(songs1,songs2))</span><br><span class="line">	repeatsingers = len(repeatlist(singers1,singers2))</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> <span class="keyword">not</span> repeatsongs <span class="keyword">and</span> <span class="keyword">not</span> repeatsingers:</span><br><span class="line">		<span class="keyword">return</span> <span class="number">0</span></span><br><span class="line"></span><br><span class="line">	<span class="comment"># 分别计算jaccard值</span></span><br><span class="line">	jas1 = repeatsongs / (count2 + count1 - repeatsongs)</span><br><span class="line">	jas2 = repeatsingers / (count1 + count2 - repeatsingers)</span><br><span class="line">	<span class="keyword">return</span> (jas1 + jas2) / <span class="number">2</span> * <span class="number">100</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 余弦相似度</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 计算重复歌曲列表的余弦相似度</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">cossimi</span><span class="params">(user1, user2)</span>:</span></span><br><span class="line">	songs1 = user1[<span class="string">'songs'</span>]</span><br><span class="line">	songs2 = user2[<span class="string">'songs'</span>]</span><br><span class="line">	repeatsongs = repeatlist(songs1, songs2)</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> <span class="keyword">not</span> repeatsongs:</span><br><span class="line">		<span class="keyword">return</span> <span class="number">0</span></span><br><span class="line"></span><br><span class="line">	<span class="comment"># 计算相似歌曲矩阵</span></span><br><span class="line">	<span class="function"><span class="keyword">def</span> <span class="title">score</span><span class="params">(songs, user)</span>:</span></span><br><span class="line">		scores = list()</span><br><span class="line">		<span class="keyword">for</span> each <span class="keyword">in</span> repeatsongs:</span><br><span class="line">		    index = songs.index(each)</span><br><span class="line">		    scores.append(user[<span class="string">'scores'</span>][index])</span><br><span class="line">		<span class="keyword">return</span> scores</span><br><span class="line"></span><br><span class="line">	score1 = score(songs1, user1)</span><br><span class="line">	score2 = score(songs2, user2)</span><br><span class="line"></span><br><span class="line">	matrix1 = np.array(score1)</span><br><span class="line">	matrix2 = np.array(score2)</span><br><span class="line">	num = np.inner(matrix1, matrix2)</span><br><span class="line">	deno = np.sqrt(matrix1.dot(matrix1)) * np.sqrt(matrix2.dot(matrix2))</span><br><span class="line">	res = (num / deno) * <span class="number">100</span></span><br><span class="line">	<span class="keyword">return</span> res</span><br><span class="line"></span><br><span class="line"><span class="comment"># user2 = &#123;"singers":["a","b","c","d","e","a","b","c","d","e"],"songs":['海阔a天空', '御花a园', '伤心19a99', '丑八a怪', '给我a一首歌的间', '水a手', 'Beat aIt', '大a约在季', '明天会更a好', '新贵妃醉a酒']&#125;</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">main</span><span class="params">(user)</span>:</span></span><br><span class="line">	<span class="comment"># 读取待比较的用户信息</span></span><br><span class="line">	<span class="comment"># users = &#123;'name':,"data":&#125;</span></span><br><span class="line">	users = []</span><br><span class="line">	users_weekdata = []</span><br><span class="line">	<span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">1</span>,<span class="number">4</span>):</span><br><span class="line">		<span class="keyword">with</span> open(<span class="string">"info"</span>+str(i)+<span class="string">".json"</span>,<span class="string">'r'</span>) <span class="keyword">as</span> f:</span><br><span class="line">			jsondata = f.read()</span><br><span class="line">		data = json.loads(jsondata)</span><br><span class="line">		users.append(handle(data))</span><br><span class="line">		users_weekdata.append(handle(data,<span class="literal">False</span>))</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">	max_num = <span class="number">0</span></span><br><span class="line">	index = <span class="number">0</span></span><br><span class="line"></span><br><span class="line">	print(<span class="string">'-----------data analysising---------------'</span>)</span><br><span class="line">	print()</span><br><span class="line">	<span class="keyword">for</span> item <span class="keyword">in</span> users:</span><br><span class="line">		jac = jaccard(item,u)</span><br><span class="line">		cos = cossimi(item,u)</span><br><span class="line">		print(<span class="string">"&#123;&#125;与&#123;&#125;的jaccard相似度为：&#123;:.2f&#125;%"</span>.format(user[<span class="string">'username'</span>],item[<span class="string">'username'</span>],jac))</span><br><span class="line">		print(<span class="string">"&#123;&#125;与&#123;&#125;的余弦相似度为：&#123;:.2f&#125;%"</span>.format(user[<span class="string">'username'</span>],item[<span class="string">'username'</span>],cos))</span><br><span class="line">		pts = jac * cos</span><br><span class="line">		<span class="keyword">if</span> pts &gt; max_num:</span><br><span class="line">			max_num = pts</span><br><span class="line">			<span class="comment"># recommendlist = item["songs"]</span></span><br><span class="line">			<span class="comment"># recommendsinger = item['singers']</span></span><br><span class="line">			index = users.index(item)</span><br><span class="line">			recommenduser = item[<span class="string">'username'</span>]</span><br><span class="line">	recommend = users_weekdata[index]</span><br><span class="line">	print()</span><br><span class="line">	print(<span class="string">'-------------completed-------------------'</span>)</span><br><span class="line">	print()</span><br><span class="line">	print(<span class="string">"&#123;&#125;与&#123;&#125;相似度最高，最终推荐的歌单为："</span>.format(user[<span class="string">'username'</span>],recommenduser))</span><br><span class="line">	print()</span><br><span class="line">	<span class="keyword">for</span> i <span class="keyword">in</span> range(len(recommend[<span class="string">'singers'</span>])):</span><br><span class="line">		<span class="keyword">if</span>(recommend[<span class="string">'scores'</span>][i] &lt;= <span class="number">2</span>):</span><br><span class="line">			<span class="keyword">continue</span></span><br><span class="line">		print(<span class="string">"&#123;&#125;---------------&#123;&#125;"</span>.format(recommend[<span class="string">'songs'</span>][i],recommend[<span class="string">'singers'</span>][i]))</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">	<span class="keyword">with</span> open(<span class="string">"info4.json"</span>,<span class="string">'r'</span>) <span class="keyword">as</span> f:</span><br><span class="line">		jsondata = f.read()</span><br><span class="line">	data1 = json.loads(jsondata)</span><br><span class="line">	u = handle(data1)</span><br><span class="line">	<span class="comment"># print(data1['weekData'])</span></span><br><span class="line">	main(u)</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="运行结果"><a href="#运行结果" class="headerlink" title="运行结果"></a>运行结果</h3><img src="/2019/07/25/网易云音乐推荐系统/tu10.png" title="图10">
+
+
+
+<h2 id="总结与收获（结合信息安全）"><a href="#总结与收获（结合信息安全）" class="headerlink" title="总结与收获（结合信息安全）"></a>总结与收获（结合信息安全）</h2><p>这个推荐系统是基于内容的推荐，是以歌曲名字及歌手信息的推荐。我们用了<code>jaccard算法</code>和<code>余弦相似算法</code>计算相似度。其中这两个算法都需要先计算两个列表中相似的部分。对于相似算法，我们可以用于话题的检测与追踪。首先将话题模型化，报道模型化。然后使用相似度算法比较其相似度，其次我们比较一个阈值，若相似度大于这个阈值，则判断话题与这个报道相关就可以进行舆情监控；反之，则判断话题与报道无关，则建立一个新的话题。</p>
+<p>​    算法当中还有不足的地方，在比较相同歌曲重复度的时候，仅仅是比较重复的歌名。但是歌曲中间还有不同的版本。例如（Remix）版本和（Live）版本，除了在音质上有区别外，其他并没有本质的区别。但是算法还是会把它们区分出来。除次以外，还应该考虑一下同一个歌手的不同歌曲之间的相似度，根据共同喜好的歌手进行推荐。</p>
+
+      
+    </div>
+
+    
+
+    
+      
+    
+
+<div>
+      
+          <div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">
+              -------------本文结束<i class="fa fa-cog fa-spin"></i>感谢您的阅读-------------
+        </div>
+    
+</div>
+      
+</div>
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        
+          
+        
+        <div class="post-tags">
+          
+            <a href="/tags/信息系统/" rel="tag"># 信息系统</a>
+          
+            <a href="/tags/Jcard算法/" rel="tag"># Jcard算法</a>
+          
+            <a href="/tags/余弦相似度/" rel="tag"># 余弦相似度</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/07/20/Linux (x86) Exploit 开发系列教程/" rel="next" title="Linux (x86) Exploit 开发系列教程">
+                <i class="fa fa-chevron-left"></i> Linux (x86) Exploit 开发系列教程
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/images/touxiang.jpeg" alt="SZzzT">
+            
+              <p class="site-author-name" itemprop="name">SZzzT</p>
+              <div class="site-description motion-element" itemprop="description">熬夜会长尸斑</div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">6</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">8</span>
+                    <span class="site-state-item-name">分类</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                      <a href="/tags/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">11</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/szt19980425" title="GitHub &rarr; https://github.com/szt19980425" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="mailto:1446943251@qq.com" title="E-Mail &rarr; mailto:1446943251@qq.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#综述"><span class="nav-number">1.</span> <span class="nav-text">综述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#爬虫模块"><span class="nav-number">2.</span> <span class="nav-text">爬虫模块</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#需要爬取的数据及爬取原因"><span class="nav-number">2.1.</span> <span class="nav-text">需要爬取的数据及爬取原因</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#动态网页爬取技术"><span class="nav-number">2.2.</span> <span class="nav-text">动态网页爬取技术</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#动态网页"><span class="nav-number">2.2.1.</span> <span class="nav-text">动态网页</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Ajax技术"><span class="nav-number">2.2.2.</span> <span class="nav-text">Ajax技术</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#XHR"><span class="nav-number">2.2.3.</span> <span class="nav-text">XHR</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#爬取步骤及细节"><span class="nav-number">2.3.</span> <span class="nav-text">爬取步骤及细节</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Python源码"><span class="nav-number">2.4.</span> <span class="nav-text">Python源码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#爬取结果展示"><span class="nav-number">2.5.</span> <span class="nav-text">爬取结果展示</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#算法模块"><span class="nav-number">3.</span> <span class="nav-text">算法模块</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#算法说明"><span class="nav-number">3.1.</span> <span class="nav-text">算法说明</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#jaccard系数"><span class="nav-number">3.2.</span> <span class="nav-text">jaccard系数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#余弦相似度"><span class="nav-number">3.3.</span> <span class="nav-text">余弦相似度</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#歌单筛选"><span class="nav-number">3.4.</span> <span class="nav-text">歌单筛选</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#代码分析与展示"><span class="nav-number">4.</span> <span class="nav-text">代码分析与展示</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#数据处理"><span class="nav-number">4.1.</span> <span class="nav-text">数据处理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#求交集函数-repeatlist"><span class="nav-number">4.2.</span> <span class="nav-text">求交集函数-repeatlist()</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#相似度算法1-jaccard"><span class="nav-number">4.3.</span> <span class="nav-text">相似度算法1-jaccard()</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#相似度算法2-cossimi"><span class="nav-number">4.4.</span> <span class="nav-text">相似度算法2-cossimi()</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#生成推荐结果"><span class="nav-number">4.5.</span> <span class="nav-text">生成推荐结果</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#完整代码展示"><span class="nav-number">4.6.</span> <span class="nav-text">完整代码展示</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#运行结果"><span class="nav-number">4.7.</span> <span class="nav-text">运行结果</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结与收获（结合信息安全）"><span class="nav-number">5.</span> <span class="nav-text">总结与收获（结合信息安全）</span></a></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<div class="copyright">&copy; 2018 – <span itemprop="copyrightYear">2019</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">SZzzT</span>
+
+  
+
+  
+</div>
+
+<div class="powered-by">
+<i class="fa fa-user-md"></i><span id="busuanzi_container_site_uv">
+  本站访客数:<span id="busuanzi_value_site_uv"></span>
+</span>
+</div>
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Git主页 – <a href="https://github.com/szt19980425" class="theme-link" rel="noopener" target="_blank">Git.SZzzT</a></div>
+
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+          <span id="scrollpercent"><span>0</span>%</span>
+        
+      </div>
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+  
+    
+    
+  
+  <script color="0,0,255" opacity="0.5" zindex="-1" count="99" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=3.4.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+
+
+  <script src="/js/utils.js?v=7.2.0"></script>
+
+  <script src="/js/motion.js?v=7.2.0"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.2.0"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.2.0"></script>
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.2.0"></script>
+<script src="/js/post-details.js?v=7.2.0"></script>
+
+
+
+  <script src="/js/next-boot.js?v=7.2.0"></script>
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+  <script>
+    // Popup Window;
+    var isfetched = false;
+    var isXml = true;
+    // Search DB path;
+    var search_path = "search.xml";
+    if (search_path.length === 0) {
+      search_path = "search.xml";
+    } else if (/json$/i.test(search_path)) {
+      isXml = false;
+    }
+    var path = "/" + search_path;
+    // monitor main search box;
+
+    var onPopupClose = function (e) {
+      $('.popup').hide();
+      $('#local-search-input').val('');
+      $('.search-result-list').remove();
+      $('#no-result').remove();
+      $(".local-search-pop-overlay").remove();
+      $('body').css('overflow', '');
+    }
+
+    function proceedsearch() {
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay"></div>')
+        .css('overflow', 'hidden');
+      $('.search-popup-overlay').click(onPopupClose);
+      $('.popup').toggle();
+      var $localSearchInput = $('#local-search-input');
+      $localSearchInput.attr("autocapitalize", "none");
+      $localSearchInput.attr("autocorrect", "off");
+      $localSearchInput.focus();
+    }
+
+    // search function;
+    var searchFunc = function(path, search_id, content_id) {
+      'use strict';
+
+      // start loading animation
+      $("body")
+        .append('<div class="search-popup-overlay local-search-pop-overlay">' +
+          '<div id="search-loading-icon">' +
+          '<i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>' +
+          '</div>' +
+          '</div>')
+        .css('overflow', 'hidden');
+      $("#search-loading-icon").css('margin', '20% auto 0 auto').css('text-align', 'center');
+
+      
+
+      $.ajax({
+        url: path,
+        dataType: isXml ? "xml" : "json",
+        async: true,
+        success: function(res) {
+          // get the contents from search data
+          isfetched = true;
+          $('.popup').detach().appendTo('.header-inner');
+          var datas = isXml ? $("entry", res).map(function() {
+            return {
+              title: $("title", this).text(),
+              content: $("content",this).text(),
+              url: $("url" , this).text()
+            };
+          }).get() : res;
+          var input = document.getElementById(search_id);
+          var resultContent = document.getElementById(content_id);
+          var inputEventFunction = function() {
+            var searchText = input.value.trim().toLowerCase();
+            var keywords = searchText.split(/[\s\-]+/);
+            if (keywords.length > 1) {
+              keywords.push(searchText);
+            }
+            var resultItems = [];
+            if (searchText.length > 0) {
+              // perform local searching
+              datas.forEach(function(data) {
+                var isMatch = false;
+                var hitCount = 0;
+                var searchTextCount = 0;
+                var title = data.title.trim();
+                var titleInLowerCase = title.toLowerCase();
+                var content = data.content.trim().replace(/<[^>]+>/g,"");
+                
+                var contentInLowerCase = content.toLowerCase();
+                var articleUrl = decodeURIComponent(data.url).replace(/\/{2,}/g, '/');
+                var indexOfTitle = [];
+                var indexOfContent = [];
+                // only match articles with not empty titles
+                if(title != '') {
+                  keywords.forEach(function(keyword) {
+                    function getIndexByWord(word, text, caseSensitive) {
+                      var wordLen = word.length;
+                      if (wordLen === 0) {
+                        return [];
+                      }
+                      var startPosition = 0, position = [], index = [];
+                      if (!caseSensitive) {
+                        text = text.toLowerCase();
+                        word = word.toLowerCase();
+                      }
+                      while ((position = text.indexOf(word, startPosition)) > -1) {
+                        index.push({position: position, word: word});
+                        startPosition = position + wordLen;
+                      }
+                      return index;
+                    }
+
+                    indexOfTitle = indexOfTitle.concat(getIndexByWord(keyword, titleInLowerCase, false));
+                    indexOfContent = indexOfContent.concat(getIndexByWord(keyword, contentInLowerCase, false));
+                  });
+                  if (indexOfTitle.length > 0 || indexOfContent.length > 0) {
+                    isMatch = true;
+                    hitCount = indexOfTitle.length + indexOfContent.length;
+                  }
+                }
+
+                // show search results
+
+                if (isMatch) {
+                  // sort index by position of keyword
+
+                  [indexOfTitle, indexOfContent].forEach(function (index) {
+                    index.sort(function (itemLeft, itemRight) {
+                      if (itemRight.position !== itemLeft.position) {
+                        return itemRight.position - itemLeft.position;
+                      } else {
+                        return itemLeft.word.length - itemRight.word.length;
+                      }
+                    });
+                  });
+
+                  // merge hits into slices
+
+                  function mergeIntoSlice(text, start, end, index) {
+                    var item = index[index.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    var hits = [];
+                    var searchTextCountInSlice = 0;
+                    while (position + word.length <= end && index.length != 0) {
+                      if (word === searchText) {
+                        searchTextCountInSlice++;
+                      }
+                      hits.push({position: position, length: word.length});
+                      var wordEnd = position + word.length;
+
+                      // move to next position of hit
+
+                      index.pop();
+                      while (index.length != 0) {
+                        item = index[index.length - 1];
+                        position = item.position;
+                        word = item.word;
+                        if (wordEnd > position) {
+                          index.pop();
+                        } else {
+                          break;
+                        }
+                      }
+                    }
+                    searchTextCount += searchTextCountInSlice;
+                    return {
+                      hits: hits,
+                      start: start,
+                      end: end,
+                      searchTextCount: searchTextCountInSlice
+                    };
+                  }
+
+                  var slicesOfTitle = [];
+                  if (indexOfTitle.length != 0) {
+                    slicesOfTitle.push(mergeIntoSlice(title, 0, title.length, indexOfTitle));
+                  }
+
+                  var slicesOfContent = [];
+                  while (indexOfContent.length != 0) {
+                    var item = indexOfContent[indexOfContent.length - 1];
+                    var position = item.position;
+                    var word = item.word;
+                    // cut out 100 characters
+                    var start = position - 20;
+                    var end = position + 80;
+                    if(start < 0){
+                      start = 0;
+                    }
+                    if (end < position + word.length) {
+                      end = position + word.length;
+                    }
+                    if(end > content.length){
+                      end = content.length;
+                    }
+                    slicesOfContent.push(mergeIntoSlice(content, start, end, indexOfContent));
+                  }
+
+                  // sort slices in content by search text's count and hits' count
+
+                  slicesOfContent.sort(function (sliceLeft, sliceRight) {
+                    if (sliceLeft.searchTextCount !== sliceRight.searchTextCount) {
+                      return sliceRight.searchTextCount - sliceLeft.searchTextCount;
+                    } else if (sliceLeft.hits.length !== sliceRight.hits.length) {
+                      return sliceRight.hits.length - sliceLeft.hits.length;
+                    } else {
+                      return sliceLeft.start - sliceRight.start;
+                    }
+                  });
+
+                  // select top N slices in content
+
+                  var upperBound = parseInt('1');
+                  if (upperBound >= 0) {
+                    slicesOfContent = slicesOfContent.slice(0, upperBound);
+                  }
+
+                  // highlight title and content
+
+                  function highlightKeyword(text, slice) {
+                    var result = '';
+                    var prevEnd = slice.start;
+                    slice.hits.forEach(function (hit) {
+                      result += text.substring(prevEnd, hit.position);
+                      var end = hit.position + hit.length;
+                      result += '<b class="search-keyword">' + text.substring(hit.position, end) + '</b>';
+                      prevEnd = end;
+                    });
+                    result += text.substring(prevEnd, slice.end);
+                    return result;
+                  }
+
+                  var resultItem = '';
+
+                  if (slicesOfTitle.length != 0) {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + highlightKeyword(title, slicesOfTitle[0]) + "</a>";
+                  } else {
+                    resultItem += "<li><a href='" + articleUrl + "' class='search-result-title'>" + title + "</a>";
+                  }
+
+                  slicesOfContent.forEach(function (slice) {
+                    resultItem += "<a href='" + articleUrl + "'>" +
+                      "<p class=\"search-result\">" + highlightKeyword(content, slice) +
+                      "...</p>" + "</a>";
+                  });
+
+                  resultItem += "</li>";
+                  resultItems.push({
+                    item: resultItem,
+                    searchTextCount: searchTextCount,
+                    hitCount: hitCount,
+                    id: resultItems.length
+                  });
+                }
+              })
+            };
+            if (keywords.length === 1 && keywords[0] === "") {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-search fa-5x"></i></div>'
+            } else if (resultItems.length === 0) {
+              resultContent.innerHTML = '<div id="no-result"><i class="fa fa-frown-o fa-5x"></i></div>'
+            } else {
+              resultItems.sort(function (resultLeft, resultRight) {
+                if (resultLeft.searchTextCount !== resultRight.searchTextCount) {
+                  return resultRight.searchTextCount - resultLeft.searchTextCount;
+                } else if (resultLeft.hitCount !== resultRight.hitCount) {
+                  return resultRight.hitCount - resultLeft.hitCount;
+                } else {
+                  return resultRight.id - resultLeft.id;
+                }
+              });
+              var searchResultList = '<ul class=\"search-result-list\">';
+              resultItems.forEach(function (result) {
+                searchResultList += result.item;
+              })
+              searchResultList += "</ul>";
+              resultContent.innerHTML = searchResultList;
+            }
+          }
+
+          if ('auto' === 'auto') {
+            input.addEventListener('input', inputEventFunction);
+          } else {
+            $('.search-icon').click(inputEventFunction);
+            input.addEventListener('keypress', function (event) {
+              if (event.keyCode === 13) {
+                inputEventFunction();
+              }
+            });
+          }
+
+          // remove loading animation
+          $(".local-search-pop-overlay").remove();
+          $('body').css('overflow', '');
+
+          proceedsearch();
+        }
+      });
+    }
+
+    // handle and trigger popup window;
+    $('.popup-trigger').click(function(e) {
+      e.stopPropagation();
+      if (isfetched === false) {
+        searchFunc(path, 'local-search-input', 'local-search-result');
+      } else {
+        proceedsearch();
+      };
+    });
+
+    $('.popup-btn-close').click(onPopupClose);
+    $('.popup').click(function(e){
+      e.stopPropagation();
+    });
+    $(document).on('keyup', function (event) {
+      var shouldDismissSearchPopup = event.which === 27 &&
+        $('.search-popup').is(':visible');
+      if (shouldDismissSearchPopup) {
+        onPopupClose();
+      }
+    });
+  </script>
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+</body>
+</html>
